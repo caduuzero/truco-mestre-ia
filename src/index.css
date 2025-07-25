@@ -8,33 +8,52 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    /* Truco Game Design System */
+    --background: 140 20% 8%;
+    --foreground: 45 100% 95%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card: 45 25% 92%;
+    --card-foreground: 25 20% 15%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover: 140 25% 12%;
+    --popover-foreground: 45 100% 95%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    --primary: 45 85% 55%;
+    --primary-foreground: 25 20% 15%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 140 15% 15%;
+    --secondary-foreground: 45 100% 95%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted: 140 10% 20%;
+    --muted-foreground: 45 20% 70%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --accent: 25 60% 45%;
+    --accent-foreground: 45 100% 95%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 75% 55%;
+    --destructive-foreground: 45 100% 95%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --border: 140 15% 25%;
+    --input: 140 15% 18%;
+    --ring: 45 85% 55%;
+
+    /* Custom Truco Colors */
+    --baize-green: 140 40% 25%;
+    --baize-green-dark: 140 50% 15%;
+    --gold-accent: 45 85% 55%;
+    --gold-dark: 45 75% 45%;
+    --leather-brown: 25 60% 35%;
+    --parchment: 45 25% 92%;
+    
+    /* Gradients */
+    --gradient-baize: linear-gradient(135deg, hsl(var(--baize-green)), hsl(var(--baize-green-dark)));
+    --gradient-gold: linear-gradient(135deg, hsl(var(--gold-accent)), hsl(var(--gold-dark)));
+    --gradient-card: linear-gradient(145deg, hsl(var(--parchment)), hsl(45 20% 88%));
+    
+    /* Shadows */
+    --shadow-card: 0 4px 12px -2px hsl(140 50% 5% / 0.4);
+    --shadow-gold: 0 0 20px hsl(var(--gold-accent) / 0.3);
+    --shadow-deep: 0 8px 25px -5px hsl(140 50% 5% / 0.6);
 
     --radius: 0.5rem;
 

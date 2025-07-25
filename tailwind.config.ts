@@ -52,6 +52,17 @@ export default {
 					DEFAULT: 'hsl(var(--card))',
 					foreground: 'hsl(var(--card-foreground))'
 				},
+				// Custom Truco colors
+				baize: {
+					DEFAULT: 'hsl(var(--baize-green))',
+					dark: 'hsl(var(--baize-green-dark))'
+				},
+				gold: {
+					DEFAULT: 'hsl(var(--gold-accent))',
+					dark: 'hsl(var(--gold-dark))'
+				},
+				leather: 'hsl(var(--leather-brown))',
+				parchment: 'hsl(var(--parchment))',
 				sidebar: {
 					DEFAULT: 'hsl(var(--sidebar-background))',
 					foreground: 'hsl(var(--sidebar-foreground))',
