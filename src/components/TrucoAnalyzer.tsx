@@ -4,7 +4,15 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { TrucoCard, TrucoCardData } from "./TrucoCard";
 import { analyzeHand, suggestPlay, TrucoDecision } from "@/utils/trucoLogic";
-import { Zap, Target, Brain, TrendingUp } from "lucide-react";
+import { 
+  createAdvancedGameState, 
+  getAdvancedDecision, 
+  AdvancedGameState,
+  TrucoLearningSystem,
+  ProbabilityMatrix,
+  TrucoProbabilityEngine
+} from '@/utils/advancedTrucoAI';
+import { Zap, Target, Brain, TrendingUp, BarChart3, Lightbulb, Shield } from "lucide-react";
 
 interface TrucoAnalyzerProps {
   playerCards: TrucoCardData[];
@@ -22,17 +30,38 @@ export const TrucoAnalyzer = ({
   const [decision, setDecision] = useState<TrucoDecision | null>(null);
   const [selectedCard, setSelectedCard] = useState<TrucoCardData | null>(null);
   const [handStrength, setHandStrength] = useState(0);
+  const [probabilities, setProbabilities] = useState<ProbabilityMatrix | null>(null);
+  const [gameState, setGameState] = useState<AdvancedGameState | null>(null);
+  const [useAdvancedAI, setUseAdvancedAI] = useState(true);
 
   useEffect(() => {
     if (playerCards.length > 0) {
       const analysis = analyzeHand(playerCards, vira);
       setHandStrength(analysis.strength);
       
-      const suggestion = suggestPlay(playerCards, vira, opponentCard);
-      setDecision(suggestion);
-      setSelectedCard(suggestion.cardToPlay || null);
+      if (useAdvancedAI) {
+        // Usar sistema avançado de IA
+        const advancedState = createAdvancedGameState(playerCards, vira, 'opponent_1');
+        setGameState(advancedState);
+        
+        const advancedDecision = getAdvancedDecision(advancedState, opponentCard);
+        setDecision(advancedDecision);
+        setSelectedCard(advancedDecision.cardToPlay || null);
+        
+        // Calcular probabilidades
+        const probs = TrucoProbabilityEngine.calculateWinProbability(
+          playerCards, vira, advancedState.opponentProfile, advancedState
+        );
+        setProbabilities(probs);
+      } else {
+        // Usar sistema básico
+        const suggestion = suggestPlay(playerCards, vira, opponentCard);
+        setDecision(suggestion);
+        setSelectedCard(suggestion.cardToPlay || null);
+        setProbabilities(null);
+      }
     }
-  }, [playerCards, vira, opponentCard]);
+  }, [playerCards, vira, opponentCard, useAdvancedAI]);
 
   const getStrengthColor = (strength: number) => {
     if (strength >= 80) return "text-green-500";
@@ -66,6 +95,21 @@ export const TrucoAnalyzer = ({
 
   return (
     <div className="space-y-6">
+      {/* Controle de IA */}
+      <div className="flex items-center justify-between p-3 bg-background border border-border rounded-lg">
+        <div className="flex items-center gap-2">
+          <Brain className="w-4 h-4 text-primary" />
+          <span className="text-sm font-medium">Sistema de IA</span>
+        </div>
+        <Button
+          variant={useAdvancedAI ? "default" : "outline"}
+          size="sm"
+          onClick={() => setUseAdvancedAI(!useAdvancedAI)}
+        >
+          {useAdvancedAI ? "Avançado" : "Básico"}
+        </Button>
+      </div>
+
       {/* Análise da mão */}
       <Card className="p-4 bg-gradient-to-r from-secondary to-muted border-border">
         <div className="flex items-center justify-between">
@@ -83,6 +127,87 @@ export const TrucoAnalyzer = ({
           </div>
         </div>
       </Card>
+
+      {/* Análise Probabilística Avançada */}
+      {useAdvancedAI && probabilities && (
+        <Card className="p-4 bg-gradient-to-br from-blue-500/10 to-blue-600/5 border-blue-500/30">
+          <div className="space-y-4">
+            <div className="flex items-center gap-2">
+              <BarChart3 className="w-5 h-5 text-blue-500" />
+              <h3 className="font-semibold text-foreground">Análise Probabilística</h3>
+            </div>
+            
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-muted-foreground">Chance de Vitória:</span>
+                  <span className="font-medium text-green-500">
+                    {Math.round(probabilities.winProbability * 100)}%
+                  </span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-muted-foreground">Probabilidade Truco:</span>
+                  <span className="font-medium text-destructive">
+                    {Math.round(probabilities.trucoProbability * 100)}%
+                  </span>
+                </div>
+              </div>
+              
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-muted-foreground">Risco de Blefe:</span>
+                  <span className="font-medium text-orange-500">
+                    {Math.round(probabilities.bluffProbability * 100)}%
+                  </span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-muted-foreground">Cartas Restantes:</span>
+                  <span className="font-medium text-muted-foreground">
+                    {Object.values(probabilities.cardDistribution).reduce((a, b) => a + b, 0)}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </Card>
+      )}
+
+      {/* Perfil do Oponente */}
+      {useAdvancedAI && gameState && (
+        <Card className="p-4 bg-gradient-to-br from-purple-500/10 to-purple-600/5 border-purple-500/30">
+          <div className="space-y-4">
+            <div className="flex items-center gap-2">
+              <Shield className="w-5 h-5 text-purple-500" />
+              <h3 className="font-semibold text-foreground">Perfil do Oponente</h3>
+            </div>
+            
+            <div className="grid grid-cols-3 gap-3 text-center">
+              <div className="space-y-1">
+                <p className="text-xs text-muted-foreground">Agressividade</p>
+                <p className="font-medium text-destructive">
+                  {Math.round(gameState.opponentProfile.aggressiveness)}%
+                </p>
+              </div>
+              <div className="space-y-1">
+                <p className="text-xs text-muted-foreground">Frequência Blefe</p>
+                <p className="font-medium text-orange-500">
+                  {Math.round(gameState.opponentProfile.bluffFrequency)}%
+                </p>
+              </div>
+              <div className="space-y-1">
+                <p className="text-xs text-muted-foreground">Taxa de Vitória</p>
+                <p className="font-medium text-green-500">
+                  {Math.round(gameState.opponentProfile.winRate * 100)}%
+                </p>
+              </div>
+            </div>
+            
+            <div className="text-xs text-muted-foreground text-center">
+              Jogos analisados: {gameState.opponentProfile.totalGames}
+            </div>
+          </div>
+        </Card>
+      )}
 
       {/* Carta vira */}
       <Card className="p-4 bg-gradient-to-br from-gold/10 to-gold/5 border-gold/30">
