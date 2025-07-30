@@ -1,10 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { TrucoCard, TrucoCardData } from '@/components/TrucoCard';
-import { calculateTrucoValue } from '@/utils/trucoLogic';
-import { ArrowLeft, Sparkles } from 'lucide-react';
+import { calculateTrucoValue, analyzeHand, suggestPlay } from '@/utils/trucoLogic';
+import { ArrowLeft, Sparkles, Bot } from 'lucide-react';
 
 interface TrucoManualModeProps {
   onBack: () => void;
@@ -78,6 +78,52 @@ export const TrucoManualMode = ({ onBack }: TrucoManualModeProps) => {
   const [playerCards, setPlayerCards] = useState<TrucoCardData[]>([]);
   const [opponentCards, setOpponentCards] = useState<TrucoCardData[]>([]);
   const [manilhas, setManilhas] = useState<TrucoCardData[]>([]);
+  const [showBot, setShowBot] = useState(false);
+  const [botAdvice, setBotAdvice] = useState<string>('');
+
+  // Mostrar o bot quando VIRA e 3 cartas da mão estiverem selecionadas
+  useEffect(() => {
+    if (viraCard && playerCards.length === 3) {
+      setShowBot(true);
+      setBotAdvice("🎩 Vamos jogar truco!");
+    } else {
+      setShowBot(false);
+      setBotAdvice('');
+    }
+  }, [viraCard, playerCards]);
+
+  // Atualizar conselhos do bot conforme cartas do adversário são jogadas
+  useEffect(() => {
+    if (showBot && viraCard && playerCards.length === 3) {
+      const handAnalysis = analyzeHand(playerCards, viraCard);
+      const currentOpponentCard = opponentCards[opponentCards.length - 1];
+      const decision = suggestPlay(playerCards, viraCard, currentOpponentCard, opponentCards.length + 1);
+      
+      let advice = '';
+      
+      if (opponentCards.length === 0) {
+        if (handAnalysis.strength > 25) {
+          advice = "🔥 Essa tua mão tá um canhão! Bora pedir Truco!";
+        } else if (handAnalysis.strength > 15) {
+          advice = "💪 Mão razoável, jogue com confiança!";
+        } else if (handAnalysis.hasManilha) {
+          advice = "⭐ Você tem manilha! Use com sabedoria!";
+        } else {
+          advice = "🤔 Mão fraca, mas vamos blefar com estilo!";
+        }
+      } else {
+        if (decision.action === 'truco') {
+          advice = `🎯 ${decision.reasoning} - Hora do TRUCO!`;
+        } else if (decision.action === 'play') {
+          advice = `🃏 ${decision.reasoning}`;
+        } else {
+          advice = `⚡ ${decision.reasoning}`;
+        }
+      }
+      
+      setBotAdvice(advice);
+    }
+  }, [showBot, viraCard, playerCards, opponentCards]);
 
   const handleViraSelect = (card: TrucoCardData) => {
     setViraCard(card);
@@ -300,6 +346,34 @@ export const TrucoManualMode = ({ onBack }: TrucoManualModeProps) => {
             </div>
           </CardContent>
         </Card>
+
+        {/* Robô Truqueiro de Plantão */}
+        {showBot && (
+          <div className="fixed bottom-4 right-4 max-w-sm animate-scale-in">
+            <Card className="bg-gradient-to-br from-gold/10 to-gold-dark/10 border-gold shadow-2xl">
+              <CardContent className="p-4">
+                <div className="flex items-start gap-3">
+                  <div className="flex-shrink-0">
+                    <div className="w-12 h-12 bg-gradient-to-br from-gold to-gold-dark rounded-full flex items-center justify-center text-gold-foreground">
+                      <Bot className="w-6 h-6" />
+                    </div>
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-1">
+                      <h3 className="font-bold text-gold text-sm">Truqueiro de Plantão</h3>
+                      <Badge variant="outline" className="text-xs border-gold text-gold">
+                        🎩 Gala
+                      </Badge>
+                    </div>
+                    <p className="text-sm text-foreground leading-relaxed">
+                      {botAdvice}
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
       </div>
     </div>
   );
