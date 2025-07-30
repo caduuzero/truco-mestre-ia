@@ -2,9 +2,9 @@ import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Smartphone, Monitor, Eye, Bot, Zap, Settings2 } from 'lucide-react';
+import { Smartphone, Monitor, Eye, Bot, Zap, Settings2, Hand } from 'lucide-react';
 
-export type AppMode = 'mobile' | 'desktop';
+export type AppMode = 'mobile' | 'desktop' | 'manual';
 export type OperationMode = 'assistant' | 'automatic';
 
 interface AppModeSelectorProps {
@@ -37,7 +37,7 @@ export const AppModeSelector = ({ onModeSelect }: AppModeSelectorProps) => {
 
         {!selectedAppMode ? (
           /* App Mode Selection */
-          <div className="grid md:grid-cols-2 gap-6">
+          <div className="grid md:grid-cols-3 gap-6">
             <Card 
               className="cursor-pointer transition-all hover:border-primary hover:shadow-lg"
               onClick={() => setSelectedAppMode('mobile')}
@@ -102,6 +102,40 @@ export const AppModeSelector = ({ onModeSelect }: AppModeSelectorProps) => {
                 </div>
                 <Badge variant="secondary" className="w-full justify-center">
                   Máximo desempenho e controle
+                </Badge>
+              </CardContent>
+            </Card>
+
+            <Card 
+              className="cursor-pointer transition-all hover:border-gold hover:shadow-lg"
+              onClick={() => onModeSelect('manual', 'assistant')}
+            >
+              <CardHeader className="text-center">
+                <div className="mx-auto mb-4">
+                  <Hand className="w-16 h-16 text-gold" />
+                </div>
+                <CardTitle className="text-2xl">Modo Manual</CardTitle>
+                <CardDescription>
+                  Simulador de partida com seleção manual
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <Eye className="w-4 h-4 text-gold" />
+                    <span className="text-sm">Escolha cartas manualmente</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Zap className="w-4 h-4 text-gold" />
+                    <span className="text-sm">Sistema de manilhas automático</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Settings2 className="w-4 h-4 text-gold" />
+                    <span className="text-sm">Simulação de partida completa</span>
+                  </div>
+                </div>
+                <Badge variant="outline" className="w-full justify-center border-gold text-gold">
+                  Ideal para treino e aprendizado
                 </Badge>
               </CardContent>
             </Card>
